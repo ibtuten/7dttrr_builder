@@ -1,27 +1,27 @@
 [
   {
-    "id": "ultramarines",
-    "name": "Ultramarines",
-    "faction": "Space Marines"
+    "id": "france",
+    "name": "France",
+    "notes": "NATO member, advanced armor and helicopters"
   },
   {
-    "id": "necrons",
-    "name": "Necrons",
-    "faction": "Xenos"
+    "id": "ussr",
+    "name": "Soviet Union",
+    "notes": "Eastern Bloc, heavy armor focus"
   },
   {
-    "id": "chaos",
-    "name": "Chaos Space Marines",
-    "faction": "Chaos"
+    "id": "usa",
+    "name": "United States",
+    "notes": "NATO leader, balanced forces"
   },
   {
-    "id": "eldar",
-    "name": "Eldar",
-    "faction": "Xenos"
+    "id": "israel",
+    "name": "Israel",
+    "notes": "Specialized armor and air defense"
   },
   {
-    "id": "orks",
-    "name": "Orks",
-    "faction": "Xenos"
+    "id": "wg",
+    "name": "West Germany",
+    "notes": "NATO, advanced air defense"
   }
 ]

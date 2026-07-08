@@ -292,7 +292,7 @@ body {
 .force-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 14px;
+    font-size: 13px;
 }
 
 .force-table thead {
@@ -301,15 +301,16 @@ body {
 }
 
 .force-table th {
-    padding: 12px;
+    padding: 10px 8px;
     text-align: left;
     font-weight: 600;
     color: #333;
-    font-size: 13px;
+    font-size: 12px;
+    white-space: nowrap;
 }
 
 .force-table td {
-    padding: 12px;
+    padding: 10px 8px;
     border-bottom: 1px solid #e8e8e8;
 }
 
@@ -320,21 +321,22 @@ body {
 .unit-quantity {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 4px;
+    white-space: nowrap;
 }
 
 .qty-input {
-    width: 50px;
-    padding: 6px 8px;
+    width: 45px;
+    padding: 5px 6px;
     border: 1px solid #ddd;
     border-radius: 3px;
     text-align: center;
-    font-size: 13px;
+    font-size: 12px;
 }
 
 .qty-btn {
-    padding: 4px 8px;
-    font-size: 12px;
+    padding: 4px 6px;
+    font-size: 11px;
     min-width: auto;
     border: 1px solid #ddd;
     background-color: #fff;
@@ -343,49 +345,63 @@ body {
 .unit-points {
     text-align: right;
     font-weight: 500;
+    white-space: nowrap;
 }
 
 .btn-remove {
-    padding: 6px 8px;
-    font-size: 12px;
+    padding: 4px 6px;
+    font-size: 11px;
     color: #d32f2f;
+    white-space: nowrap;
 }
 
 /* ========================================
-   UNIT STATS TABLE
+   UNIT DETAILS TABLE
    ======================================== */
 .unit-details {
-    margin-top: 15px;
-    border-top: 1px solid #e8e8e8;
+    margin-top: 12px;
     padding-top: 12px;
+    border-top: 1px solid #e8e8e8;
 }
 
-.stats-table {
+.unit-details-label {
+    font-weight: 600;
+    font-size: 12px;
+    margin-bottom: 8px;
+    color: #333;
+}
+
+.details-table {
     width: 100%;
     font-size: 12px;
     border-collapse: collapse;
 }
 
-.stats-table th {
+.details-table th {
     padding: 6px 8px;
     text-align: center;
     font-weight: 600;
     background-color: #f9f9f9;
     border-bottom: 1px solid #e0e0e0;
     color: #666;
+    font-size: 11px;
 }
 
-.stats-table td {
+.details-table td {
     padding: 6px 8px;
     text-align: center;
     border-bottom: 1px solid #e8e8e8;
 }
 
-.stat-abbr {
+.details-label {
+    text-align: left;
     font-weight: 600;
     color: #333;
-    display: inline-block;
-    min-width: 24px;
+}
+
+.details-value {
+    font-weight: 500;
+    color: #333;
 }
 
 /* ========================================

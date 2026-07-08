@@ -4,6 +4,7 @@
 let armies = [];
 let units = [];
 let forceList = []; // Array of { unitId, quantity }
+let selectedArmyId = null;
 
 // ========================================
 // DOM ELEMENTS
@@ -64,13 +65,14 @@ function populateArmySelect() {
     armies.forEach(army => {
         const option = document.createElement('option');
         option.value = army.id;
-        option.textContent = `${army.name} (${army.faction})`;
+        option.textContent = army.name;
         armySelect.appendChild(option);
     });
 }
 
 function populateUnitsList(armyId) {
     unitsList.innerHTML = '';
+    selectedArmyId = armyId;
 
     if (!armyId) {
         return;
@@ -89,7 +91,7 @@ function populateUnitsList(armyId) {
         div.innerHTML = `
             <div class="unit-name">${unit.name}</div>
             <div class="unit-meta">
-                <span>Size: ${unit.size}</span>
+                <span>${unit.type}</span>
                 <div class="unit-cost">
                     <span>${unit.points}pts</span>
                     <span>${unit.bp} BP</span>
@@ -162,12 +164,19 @@ function renderForceList() {
     let totalPoints = 0;
     let totalBP = 0;
     let html = '<table class="force-table"><thead><tr>';
-    html += '<th>Unit</th>';
-    html += '<th>Points</th>';
-    html += '<th>BP</th>';
+    html += '<th>Type</th>';
+    html += '<th>Name</th>';
+    html += '<th>Arm F</th>';
+    html += '<th>Arm S</th>';
+    html += '<th>Wpn</th>';
+    html += '<th>Hit</th>';
+    html += '<th>Mor</th>';
+    html += '<th>ATGM</th>';
+    html += '<th>Notes</th>';
     html += '<th style="text-align: center;">Qty</th>';
-    html += '<th style="text-align: right;">Total</th>';
-    html += '<th style="text-align: center;"></th>';
+    html += '<th style="text-align: right;">Pts</th>';
+    html += '<th style="text-align: right;">BP</th>';
+    html += '<th></th>';
     html += '</tr></thead><tbody>';
 
     forceList.forEach(item => {
@@ -179,13 +188,17 @@ function renderForceList() {
         totalPoints += unitTotal;
         totalBP += bpTotal;
 
+        // Main row
         html += `<tr>
-            <td>
-                <div><strong>${unit.name}</strong></div>
-                <div style="font-size: 12px; color: #666;">Size: ${unit.size}</div>
-            </td>
-            <td class="unit-points">${unit.points}</td>
-            <td class="unit-points">${unit.bp.toFixed(1)}</td>
+            <td>${unit.type}</td>
+            <td><strong>${unit.name}</strong></td>
+            <td style="text-align: center;">${unit.armourFront}</td>
+            <td style="text-align: center;">${unit.armourSide}</td>
+            <td style="text-align: center;">${unit.weapon}</td>
+            <td style="text-align: center;">${unit.toHit}</td>
+            <td style="text-align: center;">${unit.morale}</td>
+            <td style="text-align: center;">${formatAtgm(unit.atgmToHit, unit.atgmWeapon)}</td>
+            <td style="font-size: 12px;">${unit.notes}</td>
             <td style="text-align: center;">
                 <div class="unit-quantity">
                     <button class="btn qty-btn" onclick="updateUnitQuantity('${unit.id}', ${item.quantity - 1})">−</button>
@@ -194,42 +207,10 @@ function renderForceList() {
                     <button class="btn qty-btn" onclick="updateUnitQuantity('${unit.id}', ${item.quantity + 1})">+</button>
                 </div>
             </td>
-            <td class="unit-points"><strong>${unitTotal}</strong></td>
+            <td class="unit-points">${unitTotal}</td>
+            <td class="unit-points">${bpTotal.toFixed(1)}</td>
             <td style="text-align: center;">
                 <button class="btn btn-small btn-danger" onclick="removeUnitFromForce('${unit.id}')">Remove</button>
-            </td>
-        </tr>`;
-
-        // Add unit stats row
-        html += `<tr style="background-color: #fafafa;">
-            <td colspan="6">
-                <div class="unit-details">
-                    <div style="font-weight: 600; font-size: 13px; margin-bottom: 8px;">Unit Stats</div>
-                    <table class="stats-table">
-                        <thead>
-                            <tr>
-                                <th>WS</th>
-                                <th>BS</th>
-                                <th>Str</th>
-                                <th>Tgh</th>
-                                <th>Wounds</th>
-                                <th>Ld</th>
-                                <th>Save</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><span class="stat-abbr">${unit.stats.ws}</span></td>
-                                <td><span class="stat-abbr">${unit.stats.bs}</span></td>
-                                <td><span class="stat-abbr">${unit.stats.str}</span></td>
-                                <td><span class="stat-abbr">${unit.stats.tgh}</span></td>
-                                <td><span class="stat-abbr">${unit.stats.wounds}</span></td>
-                                <td><span class="stat-abbr">${unit.stats.ld}</span></td>
-                                <td><span class="stat-abbr">${unit.stats.sv}+</span></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
             </td>
         </tr>`;
     });
@@ -239,6 +220,11 @@ function renderForceList() {
     forceListDiv.innerHTML = html;
     totalPointsEl.textContent = totalPoints;
     totalBPEl.textContent = totalBP.toFixed(1);
+}
+
+function formatAtgm(toHit, weapon) {
+    if (!toHit && !weapon) return '—';
+    return `${toHit} ${weapon}`.trim();
 }
 
 // ========================================
@@ -264,7 +250,6 @@ function handlePrint() {
     }
 
     // Get selected army name
-    const selectedArmyId = armySelect.value;
     const selectedArmy = armies.find(a => a.id === selectedArmyId);
     const armyName = selectedArmy ? selectedArmy.name : 'Army List';
 
@@ -286,11 +271,18 @@ function handlePrint() {
 
     // Generate print content
     let printContent = '<table class="force-table"><thead><tr>';
-    printContent += '<th>Unit</th>';
-    printContent += '<th>Points</th>';
-    printContent += '<th>BP</th>';
+    printContent += '<th>Type</th>';
+    printContent += '<th>Name</th>';
+    printContent += '<th>Arm F</th>';
+    printContent += '<th>Arm S</th>';
+    printContent += '<th>Wpn</th>';
+    printContent += '<th>Hit</th>';
+    printContent += '<th>Mor</th>';
+    printContent += '<th>ATGM</th>';
+    printContent += '<th>Notes</th>';
     printContent += '<th style="text-align: center;">Qty</th>';
-    printContent += '<th style="text-align: right;">Total</th>';
+    printContent += '<th style="text-align: right;">Pts</th>';
+    printContent += '<th style="text-align: right;">BP</th>';
     printContent += '</tr></thead><tbody>';
 
     forceList.forEach(item => {
@@ -301,47 +293,18 @@ function handlePrint() {
         const bpTotal = unit.bp * item.quantity;
 
         printContent += `<tr>
-            <td>
-                <div><strong>${unit.name}</strong></div>
-                <div style="font-size: 12px; color: #666;">Size: ${unit.size}</div>
-            </td>
-            <td class="unit-points">${unit.points}</td>
-            <td class="unit-points">${unit.bp.toFixed(1)}</td>
+            <td>${unit.type}</td>
+            <td><strong>${unit.name}</strong></td>
+            <td style="text-align: center;">${unit.armourFront}</td>
+            <td style="text-align: center;">${unit.armourSide}</td>
+            <td style="text-align: center;">${unit.weapon}</td>
+            <td style="text-align: center;">${unit.toHit}</td>
+            <td style="text-align: center;">${unit.morale}</td>
+            <td style="text-align: center;">${formatAtgm(unit.atgmToHit, unit.atgmWeapon)}</td>
+            <td style="font-size: 12px;">${unit.notes}</td>
             <td style="text-align: center;">${item.quantity}</td>
-            <td class="unit-points"><strong>${unitTotal}</strong></td>
-        </tr>`;
-
-        // Add unit stats row
-        printContent += `<tr style="background-color: #fafafa;">
-            <td colspan="5">
-                <div class="unit-details">
-                    <div style="font-weight: 600; font-size: 13px; margin-bottom: 8px;">Unit Stats</div>
-                    <table class="stats-table">
-                        <thead>
-                            <tr>
-                                <th>WS</th>
-                                <th>BS</th>
-                                <th>Str</th>
-                                <th>Tgh</th>
-                                <th>Wounds</th>
-                                <th>Ld</th>
-                                <th>Save</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><span class="stat-abbr">${unit.stats.ws}</span></td>
-                                <td><span class="stat-abbr">${unit.stats.bs}</span></td>
-                                <td><span class="stat-abbr">${unit.stats.str}</span></td>
-                                <td><span class="stat-abbr">${unit.stats.tgh}</span></td>
-                                <td><span class="stat-abbr">${unit.stats.wounds}</span></td>
-                                <td><span class="stat-abbr">${unit.stats.ld}</span></td>
-                                <td><span class="stat-abbr">${unit.stats.sv}+</span></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </td>
+            <td style="text-align: right;">${unitTotal}</td>
+            <td style="text-align: right;">${bpTotal.toFixed(1)}</td>
         </tr>`;
     });
 
