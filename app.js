@@ -19,6 +19,9 @@ const totalPointsEl = document.getElementById('totalPoints');
 const totalBPEl = document.getElementById('totalBP');
 const clearBtn = document.getElementById('clearBtn');
 const printBtn = document.getElementById('printBtn');
+const exportBtn = document.getElementById('exportBtn');
+const importBtn = document.getElementById('importBtn');
+const fileInput = document.getElementById('fileInput');
 const listTitleInput = document.getElementById('listTitle');
 
 // ========================================
@@ -249,6 +252,18 @@ function setupEventListeners() {
 
     printBtn.addEventListener('click', handlePrint);
 
+    exportBtn.addEventListener('click', exportForceList);
+
+    importBtn.addEventListener('click', () => {
+        fileInput.click();
+    });
+
+    fileInput.addEventListener('change', (e) => {
+        importForceList(e.target.files[0]);
+        // Reset input so same file can be selected again
+        fileInput.value = '';
+    });
+
     listTitleInput.addEventListener('change', (e) => {
         listTitle = e.target.value.trim();
         saveToLocalStorage();
@@ -405,6 +420,93 @@ function handlePrint() {
     setTimeout(() => {
         window.print();
     }, 100);
+}
+
+// ========================================
+// EXPORT/IMPORT FUNCTIONALITY
+// ========================================
+function exportForceList() {
+    if (forceList.length === 0) {
+        alert('Add units to your force list before exporting.');
+        return;
+    }
+
+    // Prepare export data
+    const exportData = {
+        version: '1.0',
+        timestamp: new Date().toISOString(),
+        listTitle: listTitle,
+        selectedArmyId: selectedArmyId,
+        forceList: forceList
+    };
+
+    // Convert to JSON string
+    const jsonString = JSON.stringify(exportData, null, 2);
+
+    // Create blob
+    const blob = new Blob([jsonString], { type: 'application/json' });
+
+    // Generate filename
+    const timestamp = new Date().toISOString().split('T')[0];
+    const filename = listTitle 
+        ? `${listTitle.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_${timestamp}.json`
+        : `army_list_${timestamp}.json`;
+
+    // Create download link
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+function importForceList(file) {
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        try {
+            const importData = JSON.parse(e.target.result);
+
+            // Validate structure
+            if (!importData.forceList || !Array.isArray(importData.forceList)) {
+                throw new Error('Invalid file format: missing or invalid forceList');
+            }
+
+            // Validate that all units exist
+            const allUnitsExist = importData.forceList.every(item => 
+                units.some(u => u.id === item.unitId)
+            );
+
+            if (!allUnitsExist) {
+                throw new Error('File contains units that don\'t exist in the current database');
+            }
+
+            // Load the data
+            forceList = importData.forceList;
+            listTitle = importData.listTitle || '';
+            selectedArmyId = importData.selectedArmyId || null;
+
+            // Update UI
+            listTitleInput.value = listTitle;
+
+            // Save to localStorage
+            saveToLocalStorage();
+
+            // Re-render
+            renderForceList();
+
+            alert(`Force list "${listTitle || 'Untitled'}" imported successfully!`);
+        } catch (error) {
+            console.error('Import error:', error);
+            alert(`Error importing file: ${error.message}`);
+        }
+    };
+
+    reader.readAsText(file);
 }
 
 // ========================================
