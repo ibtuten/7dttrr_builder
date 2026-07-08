@@ -1,0 +1,27 @@
+[
+  {
+    "id": "ultramarines",
+    "name": "Ultramarines",
+    "faction": "Space Marines"
+  },
+  {
+    "id": "necrons",
+    "name": "Necrons",
+    "faction": "Xenos"
+  },
+  {
+    "id": "chaos",
+    "name": "Chaos Space Marines",
+    "faction": "Chaos"
+  },
+  {
+    "id": "eldar",
+    "name": "Eldar",
+    "faction": "Xenos"
+  },
+  {
+    "id": "orks",
+    "name": "Orks",
+    "faction": "Xenos"
+  }
+]
