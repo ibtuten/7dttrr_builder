@@ -72,6 +72,17 @@ body {
     min-width: 0;
 }
 
+.site-footer {
+    margin: 0 20px 20px;
+    padding: 12px 14px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #fff;
+    color: #666;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
 /* ========================================
    PANELS
    ======================================== */
@@ -245,6 +256,29 @@ body {
     padding-bottom: 0;
 }
 
+.list-title-input {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    font-family: inherit;
+    background-color: #fff;
+    color: #333;
+    flex: 1;
+    min-width: 200px;
+    max-width: 400px;
+}
+
+.list-title-input::placeholder {
+    color: #bbb;
+}
+
+.list-title-input:focus {
+    outline: none;
+    border-color: #666;
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+}
+
 .totals {
     display: flex;
     gap: 20px;
@@ -412,8 +446,22 @@ body {
 }
 
 @media print {
+    @page {
+        margin: 12mm;
+    }
+
+    html,
     body {
         background-color: #fff;
+        margin: 0;
+        padding: 0;
+    }
+
+    .container {
+        display: none !important;
+        min-height: auto;
+        margin: 0;
+        padding: 0;
     }
 
     .header,
@@ -425,6 +473,7 @@ body {
     .main-content {
         padding: 0;
         gap: 0;
+        display: block;
     }
 
     .force-list-container {
@@ -445,6 +494,17 @@ body {
 
     .force-header {
         display: none;
+    }
+
+    #forceList {
+        display: none;
+    }
+
+    #printTemplate {
+        display: block !important;
+        margin: 0;
+        padding: 0;
+        page-break-before: auto;
     }
 
     .print-only {

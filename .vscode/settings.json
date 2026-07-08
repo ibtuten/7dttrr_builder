@@ -1,0 +1,12 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "/^cd /workspaces/7dttrr_builder && node -c app\\.js && echo \"✓ Syntax valid\"$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^cd /workspaces/7dttrr_builder && node -c app\\.js && echo \"✓ app\\.js syntax valid\"$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
+    }
+}

@@ -3,8 +3,10 @@
 // ========================================
 let armies = [];
 let units = [];
+let rules = {};
 let forceList = []; // Array of { unitId, quantity }
 let selectedArmyId = null;
+let listTitle = ''; // Army list title
 
 // ========================================
 // DOM ELEMENTS
@@ -17,6 +19,7 @@ const totalPointsEl = document.getElementById('totalPoints');
 const totalBPEl = document.getElementById('totalBP');
 const clearBtn = document.getElementById('clearBtn');
 const printBtn = document.getElementById('printBtn');
+const listTitleInput = document.getElementById('listTitle');
 
 // ========================================
 // INITIALIZATION
@@ -26,6 +29,7 @@ async function init() {
         // Load data from JSON files
         armies = await fetch('data/armies.json').then(r => r.json());
         units = await fetch('data/units.json').then(r => r.json());
+        rules = await fetch('data/rules.json').then(r => r.json());
 
         // Load force list from localStorage
         loadFromLocalStorage();
@@ -52,10 +56,16 @@ function loadFromLocalStorage() {
     if (saved) {
         forceList = JSON.parse(saved);
     }
+    const savedTitle = localStorage.getItem('listTitle');
+    if (savedTitle) {
+        listTitle = savedTitle;
+        listTitleInput.value = listTitle;
+    }
 }
 
 function saveToLocalStorage() {
     localStorage.setItem('forceList', JSON.stringify(forceList));
+    localStorage.setItem('listTitle', listTitle);
 }
 
 // ========================================
@@ -238,6 +248,11 @@ function setupEventListeners() {
     clearBtn.addEventListener('click', clearForce);
 
     printBtn.addEventListener('click', handlePrint);
+
+    listTitleInput.addEventListener('change', (e) => {
+        listTitle = e.target.value.trim();
+        saveToLocalStorage();
+    });
 }
 
 // ========================================
@@ -249,9 +264,26 @@ function handlePrint() {
         return;
     }
 
-    // Get selected army name
-    const selectedArmy = armies.find(a => a.id === selectedArmyId);
+    // Get selected army name (try selectedArmyId first, then detect from first unit in force)
+    let selectedArmy = armies.find(a => a.id === selectedArmyId);
+    
+    // If selectedArmyId not set, try to detect from first unit in force list
+    if (!selectedArmy && forceList.length > 0) {
+        const firstUnit = units.find(u => u.id === forceList[0].unitId);
+        if (firstUnit) {
+            selectedArmy = armies.find(a => a.id === firstUnit.army);
+        }
+    }
+
     const armyName = selectedArmy ? selectedArmy.name : 'Army List';
+
+    // Set print title
+    const printTitleEl = document.getElementById('printTitle');
+    if (listTitle) {
+        printTitleEl.textContent = listTitle;
+    } else {
+        printTitleEl.textContent = 'Army List';
+    }
 
     // Calculate totals
     let totalPoints = 0;
@@ -265,7 +297,8 @@ function handlePrint() {
     });
 
     // Populate print template
-    document.getElementById('printArmy').textContent = armyName;
+    const armySubtitle = selectedArmy ? `${selectedArmy.name} - ${selectedArmy.faction}` : 'Army List';
+    document.getElementById('printArmy').textContent = armySubtitle;
     document.getElementById('printTotalPoints').textContent = totalPoints;
     document.getElementById('printTotalBP').textContent = totalBP.toFixed(1);
 
@@ -309,10 +342,69 @@ function handlePrint() {
     });
 
     printContent += '</tbody></table>';
+    
+    // Add applicable rules section
+    const applicableRules = new Set();
+    let hasHeatOrSpecialArmour = false;
+    let hasAtgm = false;
+    
+    forceList.forEach(item => {
+        const unit = units.find(u => u.id === item.unitId);
+        if (unit) {
+            // Extract rules from notes
+            if (unit.notes) {
+                unit.notes.split(',').map(s => s.trim()).forEach(rule => {
+                    if (rule) applicableRules.add(rule);
+                });
+            }
+            
+            // Check for HEAT rounds (h in weapon or ATGM) or Special Armour (s in armour)
+            const hasH = (unit.weapon && unit.weapon.toLowerCase().includes('h')) ||
+                         (unit.atgmWeapon && unit.atgmWeapon.toLowerCase().includes('h'));
+            const hasS = (unit.armourFront && unit.armourFront.toLowerCase().includes('s')) ||
+                         (unit.armourSide && unit.armourSide.toLowerCase().includes('s'));
+            
+            if (hasH || hasS) {
+                hasHeatOrSpecialArmour = true;
+            }
+            
+            // Check for ATGM values
+            if (unit.atgmToHit || unit.atgmWeapon) {
+                hasAtgm = true;
+            }
+        }
+    });
+    
+    // Add HEAT Rounds and Special Armour rule if applicable
+    if (hasHeatOrSpecialArmour) {
+        applicableRules.add('HEAT Rounds and Special Armour');
+    }
+    
+    // Add ATGM rule if applicable
+    if (hasAtgm) {
+        applicableRules.add('ATGM');
+    }
+    
+    if (applicableRules.size > 0) {
+        printContent += '<div style="margin-top: 30px; page-break-inside: avoid;"><h3 style="margin: 0 0 15px 0; font-size: 16px; border-bottom: 1px solid #000; padding-bottom: 8px;">Applicable Special Rules</h3>';
+        printContent += '<div style="font-size: 12px; border-top: 1px solid #ddd;">';
+        const rulesSorted = Array.from(applicableRules).sort();
+        rulesSorted.forEach((ruleName) => {
+            const ruleDesc = (rules[ruleName] || ruleName).replace(/\\n/g, '\n');
+            printContent += `<div style="display: grid; grid-template-columns: 140px 1fr; gap: 18px; border-bottom: 1px solid #ddd; padding: 10px 8px; break-inside: avoid; page-break-inside: avoid;">
+                <div style="font-weight: 600;">${ruleName}</div>
+                <div style="white-space: pre-wrap; word-break: break-word;">${ruleDesc}</div>
+            </div>`;
+        });
+        printContent += '</div></div>';
+    }
+    
     document.getElementById('printContent').innerHTML = printContent;
 
-    // Trigger print
-    window.print();
+    // Small delay to ensure DOM is rendered before printing
+    setTimeout(() => {
+        window.print();
+    }, 100);
 }
 
 // ========================================

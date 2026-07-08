@@ -10,7 +10,7 @@
     <div class="container">
         <!-- Header -->
         <header class="header">
-            <h1>Army List Builder</h1>
+            <h1>7DttRR Army List Builder</h1>
             <div class="header-actions">
                 <button id="clearBtn" class="btn btn-secondary">Clear List</button>
                 <button id="printBtn" class="btn btn-primary">Print / Save as PDF</button>
@@ -41,6 +41,7 @@
                 <section class="panel">
                     <div class="force-header">
                         <h2>Your Force</h2>
+                        <input type="text" id="listTitle" class="list-title-input" placeholder="Enter list title (optional)" />
                         <div id="totals" class="totals">
                             <div class="total-item">
                                 <span class="total-label">Total Points:</span>
@@ -63,12 +64,18 @@
                 </section>
             </main>
         </div>
+
+        <footer class="site-footer">
+            <p>
+                7 Days to the River Rhine and all associated trademarks, artwork, and rules are the property of Great Escape Games (UK). All rights reserved by Great Escape Games. This is an unofficial fan project and is not affiliated with, endorsed by, or sponsored by Great Escape Games.
+            </p>
+        </footer>
     </div>
 
     <!-- Print Template (hidden, used for print view) -->
-    <div id="printTemplate" class="print-only" style="display: none;">
+    <div id="printTemplate" class="print-only">
         <div class="print-header">
-            <h1>Army List</h1>
+            <h1 id="printTitle">Army List</h1>
             <p id="printArmy" style="font-size: 16px; margin-bottom: 10px;"></p>
             <div class="print-totals">
                 <p><strong>Total Points:</strong> <span id="printTotalPoints">0</span></p>
