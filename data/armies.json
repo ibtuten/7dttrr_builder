@@ -2,26 +2,46 @@
   {
     "id": "france",
     "name": "France",
-    "notes": "NATO member, advanced armor and helicopters"
-  },
-  {
-    "id": "ussr",
-    "name": "Soviet Union",
-    "notes": "Eastern Bloc, heavy armor focus"
+    "faction": "NATO"
   },
   {
     "id": "usa",
     "name": "United States",
-    "notes": "NATO leader, balanced forces"
+    "faction": "NATO"
   },
   {
-    "id": "israel",
-    "name": "Israel",
-    "notes": "Specialized armor and air defense"
+    "id": "uk",
+    "name": "United Kingdom",
+    "faction": "NATO"
   },
   {
-    "id": "wg",
-    "name": "West Germany",
-    "notes": "NATO, advanced air defense"
-  }
+    "id": "frg",
+    "name": "Federal Republic of Germany",
+    "faction": "NATO"
+  },
+  {
+    "id": "canada",
+    "name": "Canada",
+    "faction": "NATO"
+  },
+  {
+    "id": "denmark",
+    "name": "Denmark",
+    "faction": "NATO"
+  },
+  {
+    "id": "netherlands",
+    "name": "Netherlands",
+    "faction": "NATO"
+  },
+  {
+    "id": "belgium",
+    "name": "Belgium",
+    "faction": "NATO"
+  },
+  {
+    "id": "wp",
+    "name": "Warsaw Pact",
+    "faction": "Warsaw Pact"
+  },
 ]
